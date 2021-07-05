@@ -1,0 +1,29 @@
+apiVersion: "kubeflow.org/v1"
+kind: "TFJob"
+metadata:
+  name: "dist-mnist-for-e2e-test"
+spec:
+  cleanPodPolicy: None
+  tfReplicaSpecs:
+    PS:
+      replicas: 1
+      restartPolicy: Never
+      template:
+        spec:
+          containers:
+            - name: tensorflow
+              image: ccr.ccs.tencentyun.com/kubeflow-oteam/tf-operator-monitored_training_session-example:tencent-v1.0.1-rc.4
+    Worker:
+      replicas: 2
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: tensorflow
+              image: ccr.ccs.tencentyun.com/kubeflow-oteam/tf-operator-monitored_training_session-example:tencent-v1.0.1-rc.4
+              volumeMounts:
+                - mountPath: "/train"
+                  name: "training"
+          volumes:
+            - name: "training"
+              emptyDir: {}
